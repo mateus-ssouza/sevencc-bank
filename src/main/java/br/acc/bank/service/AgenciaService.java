@@ -1,0 +1,118 @@
+package br.acc.bank.service;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import br.acc.bank.exception.ConflictException;
+import br.acc.bank.exception.NotFoundException;
+import br.acc.bank.exception.RepositoryException;
+import br.acc.bank.model.Agencia;
+import br.acc.bank.repository.AgenciaRepository;
+import br.acc.bank.repository.EnderecoRepository;
+import br.acc.bank.util.Strings;
+
+@Service
+public class AgenciaService {
+
+    @Autowired
+    private AgenciaRepository agenciaRepository;
+
+    @Autowired
+    private EnderecoRepository enderecoRepository;
+
+    public List<Agencia> getAll() {
+        try {
+            return agenciaRepository.findAll();
+        } catch (Exception e) {
+            throw new RepositoryException(Strings.AGENCIA.ERROR_FIND_ALL_LIST, e);
+        }
+    }
+
+    public Optional<Agencia> getById(Long id) {
+        try {
+            Optional<Agencia> agencia = agenciaRepository.findById(id);
+            // Verificar se não existe agencia com o id passado
+            if (!agencia.isPresent())
+                throw new NotFoundException(Strings.AGENCIA.NOT_FOUND);
+
+            return agencia;
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RepositoryException(Strings.AGENCIA.ERROR_FIND_BY_ID, e);
+        }
+    }
+
+    @Transactional
+    public Agencia create(Agencia agencia) {
+        try {
+            Optional<Agencia> vericiarNumeroAgencia = agenciaRepository.findByNumero(agencia.getNumero());
+            // Verificar se já existe uma agencia com o mesmo número
+            if (vericiarNumeroAgencia.isPresent())
+                throw new ConflictException(Strings.AGENCIA.CONFLICT);
+
+            enderecoRepository.save(agencia.getEndereco());
+
+            return agenciaRepository.save(agencia);
+        } catch (ConflictException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RepositoryException(Strings.AGENCIA.ERROR_CREATE, e);
+        }
+    }
+
+    @Transactional
+    public Agencia update(Long id, Agencia agencia) {
+        try {
+            Optional<Agencia> agenciaModel = agenciaRepository.findById(id);
+
+            if (!agenciaModel.isPresent())
+                throw new NotFoundException(Strings.AGENCIA.NOT_FOUND);
+            
+            Optional<Agencia> vericiarNumeroAgencia = agenciaRepository.findByNumero(agencia.getNumero());
+
+            // Verificar se já existe uma agencia com o mesmo número
+            // E se é a mesma agencia que deseja mudar o número
+            if (vericiarNumeroAgencia.isPresent() &&
+                (vericiarNumeroAgencia.get().getId() != agenciaModel.get().getId()))
+                throw new ConflictException(Strings.AGENCIA.CONFLICT);
+
+            Optional<Agencia> agenciaUpdate = agenciaModel.map(agenciaMap -> {
+                agenciaMap.setNome(agencia.getNome());
+                agenciaMap.setNumero(agencia.getNumero());
+                agenciaMap.setTelefone(agencia.getTelefone());
+                agenciaMap.setEndereco(agencia.getEndereco());
+                return agenciaMap;
+            });
+
+            enderecoRepository.save(agenciaUpdate.get().getEndereco());
+
+            return agenciaRepository.save(agenciaUpdate.get());
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (ConflictException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RepositoryException(Strings.AGENCIA.ERROR_UPDATE, e);
+        }
+    }
+
+    public void delete(Long id) {
+        try {
+            // Verificar se já existe uma agencia pelo id e remover a mesma
+            if (agenciaRepository.existsById(id)) {
+                agenciaRepository.deleteById(id);
+            } else {
+                throw new NotFoundException(Strings.AGENCIA.NOT_FOUND);
+            }
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RepositoryException(Strings.AGENCIA.ERROR_DELETE, e);
+        }
+    }
+}
