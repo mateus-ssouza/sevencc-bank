@@ -10,4 +10,14 @@ public abstract class Strings {
         public static final String ERROR_UPDATE = "Erro ao tentar atualizar uma agência.";
         public static final String ERROR_DELETE = "Erro ao tentar deletar uma agência.";
     }
+
+    public static final class CLIENTE {
+        public static final String ERROR_FIND_ALL_LIST = "Erro ao obter a lista de clientes";
+        public static final String NOT_FOUND = "Cliente não encontrado.";
+        public static final String CONFLICT = "Cpf ou e-mail da cliente já utilizado.";
+        public static final String ERROR_FIND_BY_ID = "Erro ao tentar obter uma cliente por seu ID.";
+        public static final String ERROR_CREATE = "Erro ao tentar criar um cliente.";
+        public static final String ERROR_UPDATE = "Erro ao tentar atualizar um cliente.";
+        public static final String ERROR_DELETE = "Erro ao tentar deletar um cliente.";
+    }
 }
