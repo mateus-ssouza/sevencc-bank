@@ -1,5 +1,8 @@
 package br.acc.bank.dto;
 
+import java.time.LocalDate;
+
+import br.acc.bank.util.PastDate;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -26,6 +29,10 @@ public class ClienteRequestDTO {
     @NotNull(message = "O telefone é obrigatório")
     @Size(min = 10, max = 13, message = "O telefone deve ter entre 10 e 13 caracteres")
     private String telefone;
+
+    @NotNull(message = "A data de nascimento é obrigatória")
+    @PastDate(message = "A data de nascimento deve ser uma data no passado")
+    private LocalDate dataNascimento;
 
     @NotNull(message = "O e-mail é obrigatório")
     @NotBlank(message = "O e-mail não deve estar em branco")

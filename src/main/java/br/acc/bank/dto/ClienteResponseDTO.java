@@ -14,11 +14,17 @@ public class ClienteResponseDTO {
     private Long id;
     private String nome;
     private String cpf;
+    private String dataNascimento;
     private String telefone;
     private String email;
     private EnderecoResponseDTO endereco;
     private String dataCadastro;
 
+    public void setDataNascimento(LocalDate dataNascimento) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        this.dataNascimento = dataNascimento.format(formatter);
+    }
+    
     public void setDataCadastro(LocalDate dataCadastro) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         this.dataCadastro = dataCadastro.format(formatter);

@@ -34,6 +34,9 @@ public class Cliente {
     @Column(nullable = false, length = 11, unique = true)
     private String cpf;
 
+    @Column(nullable = false)
+    private LocalDate dataNascimento;
+
     @Column(nullable = false, length = 13)
     private String telefone;
 
