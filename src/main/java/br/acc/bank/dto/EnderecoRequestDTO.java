@@ -36,6 +36,6 @@ public class EnderecoRequestDTO {
     private String estado;
 
     @NotNull(message = "O país é obrigatório")
-    @Size(min = 3, max = 60, message = "O país deve ter entre 3 e 60 caracteres")
+    @Size(min = 2, max = 60, message = "O país deve ter entre 3 e 60 caracteres")
     private String pais;
 }

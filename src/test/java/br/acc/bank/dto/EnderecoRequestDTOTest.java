@@ -39,7 +39,7 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertTrue(violations.isEmpty(), "Não deveria haver violações de validação.");
+        assertTrue(violations.isEmpty());
     }
 
     @Test
@@ -56,9 +56,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O CEP é obrigatório", violation.getMessage(), "A mensagem de violação está incorreta.");
+        assertEquals("O CEP é obrigatório", violation.getMessage());
     }
 
     @Test
@@ -75,10 +75,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O CEP deve ter exatamente 8 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("O CEP deve ter exatamente 8 caracteres", violation.getMessage());
     }
 
     @Test
@@ -95,10 +94,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O CEP deve ter exatamente 8 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("O CEP deve ter exatamente 8 caracteres", violation.getMessage());
     }
 
     @Test
@@ -115,9 +113,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("A rua é obrigatória", violation.getMessage(), "A mensagem de violação está incorreta.");
+        assertEquals("A rua é obrigatória", violation.getMessage());
     }
 
     @Test
@@ -134,10 +132,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("A rua deve ter entre 3 e 60 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("A rua deve ter entre 3 e 60 caracteres", violation.getMessage());
     }
 
     @Test
@@ -154,10 +151,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("A rua deve ter entre 3 e 60 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("A rua deve ter entre 3 e 60 caracteres", violation.getMessage());
     }
 
     @Test
@@ -174,9 +170,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O número é obrigatório", violation.getMessage(), "A mensagem de violação está incorreta.");
+        assertEquals("O número é obrigatório", violation.getMessage());
     }
 
     @Test
@@ -193,10 +189,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O número deve ter entre 1 e 10 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("O número deve ter entre 1 e 10 caracteres", violation.getMessage());
     }
 
     @Test
@@ -213,10 +208,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O número deve ter entre 1 e 10 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("O número deve ter entre 1 e 10 caracteres", violation.getMessage());
     }
 
     @Test
@@ -233,9 +227,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O bairro é obrigatório", violation.getMessage(), "A mensagem de violação está incorreta.");
+        assertEquals("O bairro é obrigatório", violation.getMessage());
     }
 
     @Test
@@ -252,10 +246,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O bairro deve ter entre 3 e 50 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("O bairro deve ter entre 3 e 50 caracteres", violation.getMessage());
     }
 
     @Test
@@ -272,10 +265,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O bairro deve ter entre 3 e 50 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("O bairro deve ter entre 3 e 50 caracteres", violation.getMessage());
     }
 
     @Test
@@ -292,9 +284,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("A cidade é obrigatória", violation.getMessage(), "A mensagem de violação está incorreta.");
+        assertEquals("A cidade é obrigatória", violation.getMessage());
     }
 
     @Test
@@ -311,10 +303,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("A cidade deve ter entre 3 e 50 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("A cidade deve ter entre 3 e 50 caracteres", violation.getMessage());
     }
 
     @Test
@@ -331,10 +322,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("A cidade deve ter entre 3 e 50 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("A cidade deve ter entre 3 e 50 caracteres", violation.getMessage());
     }
 
     @Test
@@ -351,9 +341,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O estado é obrigatório", violation.getMessage(), "A mensagem de violação está incorreta.");
+        assertEquals("O estado é obrigatório", violation.getMessage());
     }
 
     @Test
@@ -370,10 +360,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O estado deve ter entre 2 e 60 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("O estado deve ter entre 2 e 60 caracteres", violation.getMessage());
     }
 
     @Test
@@ -390,10 +379,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O estado deve ter entre 2 e 60 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("O estado deve ter entre 2 e 60 caracteres", violation.getMessage());
     }
 
     @Test
@@ -410,9 +398,9 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O país é obrigatório", violation.getMessage(), "A mensagem de violação está incorreta.");
+        assertEquals("O país é obrigatório", violation.getMessage());
     }
 
     @Test
@@ -425,14 +413,13 @@ public class EnderecoRequestDTOTest {
         endereco.setBairro("Centro");
         endereco.setCidade("São Paulo");
         endereco.setEstado("SP");
-        endereco.setPais("BR"); // País muito curto
+        endereco.setPais("B"); // País muito curto
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O país deve ter entre 3 e 60 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("O país deve ter entre 3 e 60 caracteres", violation.getMessage());
     }
 
     @Test
@@ -449,9 +436,8 @@ public class EnderecoRequestDTOTest {
 
         Set<ConstraintViolation<EnderecoRequestDTO>> violations = validator.validate(endereco);
 
-        assertEquals(1, violations.size(), "Deveria haver uma violação de validação.");
+        assertEquals(1, violations.size());
         ConstraintViolation<EnderecoRequestDTO> violation = violations.iterator().next();
-        assertEquals("O país deve ter entre 3 e 60 caracteres", violation.getMessage(),
-                "A mensagem de violação está incorreta.");
+        assertEquals("O país deve ter entre 3 e 60 caracteres", violation.getMessage());
     }
 }
