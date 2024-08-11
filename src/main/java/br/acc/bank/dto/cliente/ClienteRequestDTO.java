@@ -1,7 +1,8 @@
-package br.acc.bank.dto;
+package br.acc.bank.dto.cliente;
 
 import java.time.LocalDate;
 
+import br.acc.bank.dto.endereco.EnderecoRequestDTO;
 import br.acc.bank.util.PastDate;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;

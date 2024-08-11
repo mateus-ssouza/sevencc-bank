@@ -1,5 +1,6 @@
-package br.acc.bank.dto;
+package br.acc.bank.dto.agencia;
 
+import br.acc.bank.dto.endereco.EnderecoRequestDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

@@ -1,4 +1,4 @@
-package br.acc.bank.dto;
+package br.acc.bank.dto.cliente;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
+import br.acc.bank.dto.endereco.EnderecoResponseDTO;
 
 @Data
 @AllArgsConstructor

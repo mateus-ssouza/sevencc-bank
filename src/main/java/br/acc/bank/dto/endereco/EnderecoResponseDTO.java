@@ -1,4 +1,4 @@
-package br.acc.bank.dto;
+package br.acc.bank.dto.endereco;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

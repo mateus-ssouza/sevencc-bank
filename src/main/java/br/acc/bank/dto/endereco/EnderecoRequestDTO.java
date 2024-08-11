@@ -1,4 +1,4 @@
-package br.acc.bank.dto;
+package br.acc.bank.dto.endereco;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

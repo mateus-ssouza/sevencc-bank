@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.acc.bank.dto.ClienteRequestDTO;
-import br.acc.bank.dto.ClienteResponseDTO;
+import br.acc.bank.dto.cliente.ClienteRequestDTO;
+import br.acc.bank.dto.cliente.ClienteResponseDTO;
 import br.acc.bank.model.Cliente;
 import br.acc.bank.service.ClienteService;
 import br.acc.bank.util.MapperConverter;

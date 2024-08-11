@@ -1,4 +1,4 @@
-package br.acc.bank.dto;
+package br.acc.bank.dto.conta;
 
 import java.math.BigDecimal;
 import br.acc.bank.model.enums.TipoConta;

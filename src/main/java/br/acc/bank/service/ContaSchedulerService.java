@@ -6,27 +6,23 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.acc.bank.model.ContaCorrente;
-import br.acc.bank.model.ContaPoupanca;
-import br.acc.bank.repository.ContaCorrenteRepository;
-import br.acc.bank.repository.ContaPoupancaRepository;
+import br.acc.bank.model.Conta;
+import br.acc.bank.model.enums.TipoConta;
+import br.acc.bank.repository.ContaRepository;
 
 @Service
 public class ContaSchedulerService {
     // 0.5% de juros
     private static final BigDecimal JUROS_MENSAL = BigDecimal.valueOf(0.005);
     // Tarifa de R$ 20,00
-    private static final BigDecimal TARIFA_MENSAL = BigDecimal.valueOf(20); 
+    private static final BigDecimal TARIFA_MENSAL = BigDecimal.valueOf(20);
 
     @Autowired
-    private ContaPoupancaRepository poupancaRepository;
-
-    @Autowired
-    private ContaCorrenteRepository correnteRepository;
+    private ContaRepository contaRepository;
 
     // Aplicar juros as contas poupança com saldo positivo
     public void aplicarJurosMensal() {
-        List<ContaPoupanca> contas = poupancaRepository.findAll();
+        List<Conta> contas = contaRepository.findAllByTipo(TipoConta.POUPANCA);
 
         contas.stream()
                 .filter(conta -> conta.getSaldo().compareTo(BigDecimal.ZERO) > 0)
@@ -34,19 +30,19 @@ public class ContaSchedulerService {
                     BigDecimal saldoAtual = conta.getSaldo();
                     BigDecimal juros = saldoAtual.multiply(JUROS_MENSAL);
                     conta.setSaldo(saldoAtual.add(juros));
-                    poupancaRepository.save(conta);
+                    contaRepository.save(conta);
                 });
     }
 
     // Aplicar tarifas a todas contas correntes
     public void aplicarTarifaMensal() {
-        List<ContaCorrente> contas = correnteRepository.findAll();
+        List<Conta> contas = contaRepository.findAllByTipo(TipoConta.CORRENTE);
 
         contas.stream()
                 .forEach(conta -> {
                     BigDecimal saldoAtual = conta.getSaldo();
                     conta.setSaldo(saldoAtual.subtract(TARIFA_MENSAL));
-                    correnteRepository.save(conta);
+                    contaRepository.save(conta);
                 });
     }
 }
