@@ -15,4 +15,5 @@ public class ContaResponseDTO {
     private BigDecimal saldo;
     private TipoConta tipo;
     private AgenciaContaResponseDTO agencia;
+    private ClienteContaResponseDTO cliente;
 }

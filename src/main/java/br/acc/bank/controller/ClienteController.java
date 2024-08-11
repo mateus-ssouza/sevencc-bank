@@ -33,48 +33,69 @@ public class ClienteController {
 
     @GetMapping
     public ResponseEntity<List<ClienteResponseDTO>> getAllClientes() {
-        var clientes = clienteService.getAll();
-        var clientesDTO = clientes.stream()
-                .map(cliente -> MapperConverter.convertToDto(cliente, ClienteResponseDTO.class))
-                .collect(Collectors.toList());
+        try {
+            var clientes = clienteService.getAll();
+            var clientesDTO = clientes.stream()
+                    .map(cliente -> MapperConverter.convertToDto(cliente, ClienteResponseDTO.class))
+                    .collect(Collectors.toList());
 
-        return ResponseEntity.ok(clientesDTO);
+            return ResponseEntity.ok(clientesDTO);
+        } catch (Exception e) {
+            throw e;
+        }
+
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ClienteResponseDTO> getClienteById(@PathVariable Long id) {
-        return clienteService.getById(id)
-                .map(cliente -> ResponseEntity.ok(MapperConverter.convertToDto(cliente, ClienteResponseDTO.class)))
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return clienteService.getById(id)
+                    .map(cliente -> ResponseEntity.ok(MapperConverter.convertToDto(cliente, ClienteResponseDTO.class)))
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     @PostMapping
     public ResponseEntity<ClienteResponseDTO> createCliente(@Valid @RequestBody ClienteRequestDTO clienteRequestDTO,
             BindingResult validateFields) {
 
-        ValidationUtils.validateBindingResult(validateFields);
-        var cliente = MapperConverter.convertToEntity(clienteRequestDTO, Cliente.class);
-        var savedCliente = clienteService.create(cliente);
-        var clienteResponseDTO = MapperConverter.convertToDto(savedCliente, ClienteResponseDTO.class);
+        try {
+            ValidationUtils.validateBindingResult(validateFields);
+            var cliente = MapperConverter.convertToEntity(clienteRequestDTO, Cliente.class);
+            var savedCliente = clienteService.create(cliente);
+            var clienteResponseDTO = MapperConverter.convertToDto(savedCliente, ClienteResponseDTO.class);
 
-        return new ResponseEntity<>(clienteResponseDTO, HttpStatus.CREATED);
+            return new ResponseEntity<>(clienteResponseDTO, HttpStatus.CREATED);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ClienteResponseDTO> updateCliente(@PathVariable Long id,
             @Valid @RequestBody ClienteRequestDTO clienteRequestDTO, BindingResult validateFields) {
 
-        ValidationUtils.validateBindingResult(validateFields);
-        var cliente = MapperConverter.convertToEntity(clienteRequestDTO, Cliente.class);
-        var updatedCliente = clienteService.update(id, cliente);
-        var clienteResponseDTO = MapperConverter.convertToDto(updatedCliente, ClienteResponseDTO.class);
+        try {
+            ValidationUtils.validateBindingResult(validateFields);
+            var cliente = MapperConverter.convertToEntity(clienteRequestDTO, Cliente.class);
+            var updatedCliente = clienteService.update(id, cliente);
+            var clienteResponseDTO = MapperConverter.convertToDto(updatedCliente, ClienteResponseDTO.class);
 
-        return ResponseEntity.ok(clienteResponseDTO);
+            return ResponseEntity.ok(clienteResponseDTO);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCliente(@PathVariable Long id) {
-        clienteService.delete(id);
-        return ResponseEntity.noContent().build();
+        try {
+            clienteService.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

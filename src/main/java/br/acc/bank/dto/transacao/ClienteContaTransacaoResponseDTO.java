@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ContaTransacaoResponseDTO {
-    private Long numero;
-    private ClienteContaTransacaoResponseDTO cliente;
+public class ClienteContaTransacaoResponseDTO {
+    private String nome;
+    private String cpf;
 }

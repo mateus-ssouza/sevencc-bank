@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,12 +13,18 @@ import br.acc.bank.exception.ConflictException;
 import br.acc.bank.exception.NotFoundException;
 import br.acc.bank.exception.RepositoryException;
 import br.acc.bank.model.Cliente;
+import br.acc.bank.model.Usuario;
+import br.acc.bank.model.enums.UsuarioRole;
 import br.acc.bank.repository.ClienteRepository;
 import br.acc.bank.repository.EnderecoRepository;
+import br.acc.bank.repository.UsuarioRepository;
 import br.acc.bank.util.Strings;
 
 @Service
 public class ClienteService {
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Autowired
     private ClienteRepository clienteRepository;
@@ -50,14 +58,20 @@ public class ClienteService {
     @Transactional
     public Cliente create(Cliente cliente) {
         try {
-            Optional<Cliente> verificarEmailCliente = clienteRepository.findByEmail(cliente.getEmail());
-            Optional<Cliente> verificarCpfCliente = clienteRepository.findByCpf(cliente.getCpf());
+            Optional<Usuario> verificarEmailUsuario = usuarioRepository.findByEmail(cliente.getEmail());
+            Optional<Usuario> verificarCpfUsuario = usuarioRepository.findByCpf(cliente.getCpf());
+            UserDetails verificarLoginUsuario = usuarioRepository.findByLogin(cliente.getLogin());
 
-            // Verificar se já existe um cliente com o mesmo email ou CPF
-            if (verificarEmailCliente.isPresent() || verificarCpfCliente.isPresent())
-                throw new ConflictException(Strings.CLIENTE.CONFLICT);
+            // Verificar se já existe um cliente com o mesmo email, CPF ou login
+            if (verificarEmailUsuario.isPresent() || verificarCpfUsuario.isPresent()
+                || verificarLoginUsuario != null)
+                throw new ConflictException(Strings.USER.CONFLICT);
 
             enderecoRepository.save(cliente.getEndereco());
+            
+            String encryptedPassword = new BCryptPasswordEncoder().encode(cliente.getPassword());
+            cliente.setPassword(encryptedPassword);
+            cliente.setRole(UsuarioRole.USUARIO);
 
             return clienteRepository.save(cliente);
         } catch (ConflictException e) {
@@ -67,7 +81,7 @@ public class ClienteService {
         }
     }
 
-    @Transactional
+     @Transactional
     public Cliente update(Long id, Cliente cliente) {
         try {
             Optional<Cliente> clienteModel = clienteRepository.findById(id);
@@ -75,28 +89,31 @@ public class ClienteService {
             if (!clienteModel.isPresent())
                 throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);
 
-            Optional<Cliente> verificarEmailCliente = clienteRepository.findByEmail(cliente.getEmail());
-            Optional<Cliente> verificarCpfCliente = clienteRepository.findByCpf(cliente.getCpf());
+            Optional<Usuario> verificarEmailUsuario = usuarioRepository.findByEmail(cliente.getEmail());
+            Optional<Usuario> verificarCpfUsuario = usuarioRepository.findByCpf(cliente.getCpf());
+            UserDetails verificarLoginUsuario = usuarioRepository.findByLogin(cliente.getLogin());
+            Optional<Long> idUsuario = usuarioRepository.findIdByLogin(cliente.getLogin());
 
-            // Verificar se já existe um cliente com o mesmo email ou CPF
+            // Verificar se já existe um cliente com o mesmo email, CPF ou login
             // E se é o mesmo cliente que deseja mudar esses campos
-            if ((verificarEmailCliente.isPresent()
-                    && !verificarEmailCliente.get().getId().equals(clienteModel.get().getId())) ||
-                    (verificarCpfCliente.isPresent()
-                            && !verificarCpfCliente.get().getId().equals(clienteModel.get().getId())))
-                throw new ConflictException(Strings.CLIENTE.CONFLICT);
+            if ((verificarEmailUsuario.isPresent()
+                    && !verificarEmailUsuario.get().getId().equals(clienteModel.get().getId())) ||
+                    (verificarCpfUsuario.isPresent()
+                            && !verificarCpfUsuario.get().getId().equals(clienteModel.get().getId()))
+                    ||
+                    (verificarLoginUsuario != null && !idUsuario.get().equals(clienteModel.get().getId())))
+                throw new ConflictException(Strings.USER.CONFLICT);
 
-            // Atualize apenas os campos necessários e mantenha o valor de dataCadastro
             Cliente clienteAtualizado = clienteModel.get();
             clienteAtualizado.setNome(cliente.getNome());
             clienteAtualizado.setCpf(cliente.getCpf());
             clienteAtualizado.setTelefone(cliente.getTelefone());
+            clienteAtualizado.setDataNascimento(cliente.getDataNascimento());
             clienteAtualizado.setEmail(cliente.getEmail());
+            clienteAtualizado.setLogin(cliente.getLogin());
+            String encryptedPassword = new BCryptPasswordEncoder().encode(cliente.getPassword());
+            clienteAtualizado.setPassword(encryptedPassword);
             clienteAtualizado.setEndereco(cliente.getEndereco());
-            // Não atualize a dataCadastro
-            // clienteAtualizado.setDataCadastro(clienteModel.get().getDataCadastro());
-
-            enderecoRepository.save(clienteAtualizado.getEndereco());
 
             return clienteRepository.save(clienteAtualizado);
         } catch (NotFoundException e) {

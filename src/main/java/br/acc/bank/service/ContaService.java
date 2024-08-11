@@ -8,23 +8,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.acc.bank.dto.conta.ContaRequestDTO;
+import br.acc.bank.exception.ConflictException;
 import br.acc.bank.exception.InvalidTypeException;
 import br.acc.bank.exception.NotFoundException;
 import br.acc.bank.exception.RepositoryException;
 import br.acc.bank.model.Agencia;
+import br.acc.bank.model.Cliente;
 import br.acc.bank.model.Conta;
 import br.acc.bank.model.ContaCorrente;
 import br.acc.bank.model.ContaPoupanca;
 import br.acc.bank.model.enums.TipoConta;
 import br.acc.bank.repository.AgenciaRepository;
+import br.acc.bank.repository.ClienteRepository;
 import br.acc.bank.repository.ContaRepository;
 import br.acc.bank.util.Strings;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ContaService {
 
     @Autowired
     private ContaRepository contaRepository;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
 
     @Autowired
     private AgenciaRepository agenciaRepository;
@@ -55,21 +62,32 @@ public class ContaService {
         }
     }
 
-    public Conta create(ContaRequestDTO conta) {
+    @Transactional
+    public Conta create(ContaRequestDTO conta, String userLoginByToken) {
         try {
             Optional<Agencia> agencia = agenciaRepository.findByNumero(conta.getNumeroDaAgencia());
             if (!agencia.isPresent())
                 throw new NotFoundException(Strings.AGENCIA.NOT_FOUND);
+
+            Optional<Cliente> cliente = clienteRepository.findByLogin(userLoginByToken);
+
+            if (!cliente.isPresent())
+                throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);
+
+            boolean existeConta = contaRepository.existsByClienteId(cliente.get().getId());
+
+            if (existeConta) 
+                throw new ConflictException(Strings.CONTA.CONFLICT_ACCOUNT);
 
             Long numeroContaGerado = gerarNumeroConta();
 
             Conta savedConta;
             switch (conta.getTipo()) {
                 case CORRENTE:
-                    savedConta = new ContaCorrente(null, numeroContaGerado, agencia.get());
+                    savedConta = new ContaCorrente(null, numeroContaGerado, agencia.get(), cliente.get());
                     break;
                 case POUPANCA:
-                    savedConta = new ContaPoupanca(null, numeroContaGerado, agencia.get());
+                    savedConta = new ContaPoupanca(null, numeroContaGerado, agencia.get(), cliente.get());
                     break;
                 default:
                     throw new InvalidTypeException(Strings.CONTA.ERROR_TYPE_INVALID);
@@ -77,6 +95,8 @@ public class ContaService {
 
             return contaRepository.save(savedConta);
         } catch (NotFoundException e) {
+            throw e;
+        } catch (ConflictException e) {
             throw e;
         } catch (InvalidTypeException e) {
             throw e;

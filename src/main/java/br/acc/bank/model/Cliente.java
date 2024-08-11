@@ -2,59 +2,31 @@ package br.acc.bank.model;
 
 import java.time.LocalDate;
 
+import br.acc.bank.model.enums.UsuarioRole;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Table(name = "clientes")
-public class Cliente {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, length = 60)
-    private String nome;
-
-    @Column(nullable = false, length = 11, unique = true)
-    private String cpf;
-
-    @Column(nullable = false)
-    private LocalDate dataNascimento;
-
-    @Column(nullable = false, length = 13)
-    private String telefone;
-
-    @Column(nullable = false, length = 60, unique = true)
-    private String email;
-
-    @Temporal(TemporalType.DATE)
-    @Column(nullable = false)
-    private LocalDate dataCadastro;
+public class Cliente extends Usuario {
     
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;
 
-    @PrePersist
-    protected void onCreate() {
-        if (dataCadastro == null) {
-            dataCadastro = LocalDate.now();
-        }
+    public Cliente(String nome, String cpf, LocalDate dataNascimento, String telefone, String email,
+            String login, String password, Endereco endereco) {
+        super(nome, cpf, dataNascimento, telefone, email, login, password, UsuarioRole.USUARIO);
+        this.endereco = endereco;
     }
+
 }

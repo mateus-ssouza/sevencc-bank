@@ -13,6 +13,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import jakarta.persistence.JoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +27,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"id"})
+@Table(name = "contas")
 public class Conta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,4 +46,8 @@ public class Conta {
     @ManyToOne
     @JoinColumn(name = "agencia_id", nullable = false)
     private Agencia agencia;
+
+    @OneToOne
+    @JoinColumn(name = "cliente_id", nullable = false)
+    private Cliente cliente;
 }

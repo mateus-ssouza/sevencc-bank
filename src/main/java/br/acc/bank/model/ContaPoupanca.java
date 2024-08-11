@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "contas_poupancas")
 public class ContaPoupanca extends Conta {
     
-    public ContaPoupanca(Long id, Long numero, Agencia agencia) {
-        super(id, numero, BigDecimal.ZERO, TipoConta.POUPANCA, agencia);
+    public ContaPoupanca(Long id, Long numero, Agencia agencia, Cliente cliente) {
+        super(id, numero, BigDecimal.ZERO, TipoConta.POUPANCA, agencia, cliente);
     }
 }

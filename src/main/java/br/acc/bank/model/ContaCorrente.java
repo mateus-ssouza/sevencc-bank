@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "contas_correntes")
 public class ContaCorrente extends Conta {
 
-    public ContaCorrente(Long id, Long numero, Agencia agencia) {
-        super(id, numero, BigDecimal.ZERO, TipoConta.CORRENTE, agencia);
+    public ContaCorrente(Long id, Long numero, Agencia agencia, Cliente cliente) {
+        super(id, numero, BigDecimal.ZERO, TipoConta.CORRENTE, agencia, cliente);
     }
 
 }

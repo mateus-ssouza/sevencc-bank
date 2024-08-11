@@ -14,4 +14,6 @@ public interface ContaRepository extends JpaRepository<Conta, Long> {
     Optional<Conta> findByNumero(Long numero);
     boolean existsByNumero(Long numero);
     List<Conta> findAllByTipo(TipoConta tipo);
+    boolean existsByClienteId(Long clienteId);
+    Optional<Conta> findByClienteId(Long clienteId);
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.acc.bank.dto.conta.ContaRequestDTO;
 import br.acc.bank.dto.conta.ContaResponseDTO;
 import br.acc.bank.model.enums.TipoConta;
+import br.acc.bank.security.TokenService;
 import br.acc.bank.service.ContaService;
 import br.acc.bank.util.MapperConverter;
 import br.acc.bank.util.ValidationUtils;
@@ -30,40 +32,64 @@ public class ContaController {
     @Autowired
     private ContaService contaService;
 
-   @GetMapping
-public ResponseEntity<List<ContaResponseDTO>> getAllContas(
-        @RequestParam(required = false) TipoConta tipo) {
-    var contas = contaService.getAll(tipo);
-    var contasDTO = contas.stream()
-            .map(conta -> MapperConverter.convertToDto(conta, ContaResponseDTO.class))
-            .collect(Collectors.toList());
+    @Autowired
+    private TokenService tokenService;
 
-    return ResponseEntity.ok(contasDTO);
-}
+    @GetMapping
+    public ResponseEntity<List<ContaResponseDTO>> getAllContas(
+            @RequestParam(required = false) TipoConta tipo) {
+        try {
+            var contas = contaService.getAll(tipo);
+            var contasDTO = contas.stream()
+                    .map(conta -> MapperConverter.convertToDto(conta, ContaResponseDTO.class))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(contasDTO);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ContaResponseDTO> getContaById(@PathVariable Long id) {
-        return contaService.getById(id)
-                .map(conta -> ResponseEntity.ok(MapperConverter.convertToDto(conta, 
-                        ContaResponseDTO.class)))
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            return contaService.getById(id)
+                    .map(conta -> ResponseEntity.ok(MapperConverter.convertToDto(conta,
+                            ContaResponseDTO.class)))
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     @PostMapping
-    public ResponseEntity<ContaResponseDTO> createCliente(@Valid @RequestBody ContaRequestDTO contaRequestDTO,
-            BindingResult validateFields) {
+    public ResponseEntity<ContaResponseDTO> createConta(@Valid @RequestBody ContaRequestDTO contaRequestDTO,
+            BindingResult validateFields, @RequestHeader(value = "Authorization") String authorizationHeader) {
 
-        ValidationUtils.validateBindingResult(validateFields);
-        var savedConta = contaService.create(contaRequestDTO);
-        var contaResponseDTO = MapperConverter.convertToDto(savedConta, ContaResponseDTO.class);
+        try {
+            ValidationUtils.validateBindingResult(validateFields);
+            // Extrai o token JWT do cabeçalho Authorization
+            String token = tokenService.extractTokenFromHeader(authorizationHeader);
 
-        return new ResponseEntity<>(contaResponseDTO, HttpStatus.CREATED);
+            // Obtém o login do usuário a partir do token JWT
+            String userInfoToken = tokenService.getUserLoginFromToken(token);
+
+            var savedConta = contaService.create(contaRequestDTO, userInfoToken);
+            var contaResponseDTO = MapperConverter.convertToDto(savedConta, ContaResponseDTO.class);
+
+            return new ResponseEntity<>(contaResponseDTO, HttpStatus.CREATED);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAgencia(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteConta(@PathVariable Long id) {
+        try {
             contaService.delete(id);
-        return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

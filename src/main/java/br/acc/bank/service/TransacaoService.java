@@ -13,9 +13,11 @@ import br.acc.bank.exception.InsufficientBalanceException;
 import br.acc.bank.exception.InvalidNumericValueException;
 import br.acc.bank.exception.NotFoundException;
 import br.acc.bank.exception.RepositoryException;
+import br.acc.bank.model.Cliente;
 import br.acc.bank.model.Conta;
 import br.acc.bank.model.Transacao;
 import br.acc.bank.model.enums.TipoTransacao;
+import br.acc.bank.repository.ClienteRepository;
 import br.acc.bank.repository.ContaRepository;
 import br.acc.bank.repository.TransacaoRepository;
 import br.acc.bank.util.Strings;
@@ -30,14 +32,23 @@ public class TransacaoService {
     @Autowired
     private ContaRepository contaRepository;
 
+    @Autowired
+    private ClienteRepository clienteRepository;
+
     @Transactional
-    public Transacao deposit(TransacaoRequestDTO transacao, Long id) {
+    public Transacao deposit(TransacaoRequestDTO transacao, String userLoginByToken) {
         try {
             if (transacao.getValor() == null || transacao.getValor().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new InvalidNumericValueException(Strings.TRANSACAO.INVALID_TRANSACTION_VALUE);
             }
 
-            Optional<Conta> contaOrigem = contaRepository.findById(id);
+            Optional<Cliente> cliente = clienteRepository.findByLogin(userLoginByToken);
+            
+            if (!cliente.isPresent())
+                throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);
+
+            Optional<Conta> contaOrigem = contaRepository.findByClienteId(cliente.get().getId());
+
             if (!contaOrigem.isPresent())
                 throw new NotFoundException(Strings.TRANSACAO.NOT_FOUND_ORIGIN);
 
@@ -61,13 +72,19 @@ public class TransacaoService {
     }
 
     @Transactional
-    public Transacao withdraw(TransacaoRequestDTO transacao, Long id) {
+    public Transacao withdraw(TransacaoRequestDTO transacao, String userLoginByToken) {
         try {
             if (transacao.getValor() == null || transacao.getValor().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new InvalidNumericValueException(Strings.TRANSACAO.INVALID_TRANSACTION_VALUE);
             }
 
-            Optional<Conta> contaOrigem = contaRepository.findById(id);
+            Optional<Cliente> cliente = clienteRepository.findByLogin(userLoginByToken);
+            
+            if (!cliente.isPresent())
+                throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);
+
+            Optional<Conta> contaOrigem = contaRepository.findByClienteId(cliente.get().getId());
+
             if (!contaOrigem.isPresent())
                 throw new NotFoundException(Strings.TRANSACAO.NOT_FOUND_ORIGIN);
 
@@ -98,13 +115,19 @@ public class TransacaoService {
     }
 
     @Transactional
-    public Transacao transfer(TransferenciaRequestDTO transacao, Long id) {
+    public Transacao transfer(TransferenciaRequestDTO transacao, String userLoginByToken) {
         try {
             if (transacao.getValor() == null || transacao.getValor().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new InvalidNumericValueException(Strings.TRANSACAO.INVALID_TRANSACTION_VALUE);
             }
 
-            Optional<Conta> contaOrigem = contaRepository.findById(id);
+            Optional<Cliente> cliente = clienteRepository.findByLogin(userLoginByToken);
+            
+            if (!cliente.isPresent())
+                throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);
+
+            Optional<Conta> contaOrigem = contaRepository.findByClienteId(cliente.get().getId());
+
             if (!contaOrigem.isPresent())
                 throw new NotFoundException(Strings.TRANSACAO.NOT_FOUND_ORIGIN);
 

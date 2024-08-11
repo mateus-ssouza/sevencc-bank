@@ -1,20 +1,18 @@
-package br.acc.bank.dto.cliente;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+package br.acc.bank.dto.admin;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import br.acc.bank.dto.endereco.EnderecoResponseDTO;
 import br.acc.bank.model.enums.UsuarioRole;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClienteResponseDTO {
-    private Long id;
+public class AdminResponseDTO {
+private Long id;
     private String nome;
     private String cpf;
     private String dataNascimento;
@@ -23,7 +21,6 @@ public class ClienteResponseDTO {
     private String dataCadastro;
     private String login;
     private UsuarioRole role;
-    private EnderecoResponseDTO endereco;
 
     public void setDataNascimento(LocalDate dataNascimento) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
