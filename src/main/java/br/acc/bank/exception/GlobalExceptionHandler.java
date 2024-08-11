@@ -47,6 +47,33 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
     
+    @ExceptionHandler(InvalidTypeException.class)
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleInvalidTypeException(InvalidTypeException e) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : null);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleInsufficientBalanceException(InsufficientBalanceException e) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : null);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidNumericValueException.class)
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleInvalidNumericValueException(InvalidNumericValueException e) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : null);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception e) {
