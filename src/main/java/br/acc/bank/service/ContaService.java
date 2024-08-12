@@ -1,6 +1,7 @@
 package br.acc.bank.service;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,10 +18,12 @@ import br.acc.bank.model.Cliente;
 import br.acc.bank.model.Conta;
 import br.acc.bank.model.ContaCorrente;
 import br.acc.bank.model.ContaPoupanca;
+import br.acc.bank.model.Transacao;
 import br.acc.bank.model.enums.TipoConta;
 import br.acc.bank.repository.AgenciaRepository;
 import br.acc.bank.repository.ClienteRepository;
 import br.acc.bank.repository.ContaRepository;
+import br.acc.bank.repository.TransacaoRepository;
 import br.acc.bank.util.Strings;
 import jakarta.transaction.Transactional;
 
@@ -35,6 +38,9 @@ public class ContaService {
 
     @Autowired
     private AgenciaRepository agenciaRepository;
+
+    @Autowired
+    private TransacaoRepository transacaoRepository;
 
     public List<Conta> getAll(TipoConta tipo) {
         try {
@@ -121,6 +127,32 @@ public class ContaService {
             throw e;
         } catch (Exception e) {
             throw new RepositoryException(Strings.AGENCIA.ERROR_DELETE, e);
+        }
+    }
+
+    @Transactional
+    public List<Transacao> getExtrato(String userLoginByToken) {
+        try {
+            Optional<Cliente> cliente = clienteRepository.findByLogin(userLoginByToken);
+
+            if (!cliente.isPresent())
+                throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);
+            
+            // Verifica se a conta existe
+            Optional<Conta> conta = contaRepository.findByClienteId(cliente.get().getId());
+            if (!conta.isPresent()) {
+                throw new NotFoundException(Strings.CONTA.NOT_FOUND);
+            }
+
+            // Recupera todas as transações relacionadas a essa conta
+            List<Transacao> transacoes = transacaoRepository.findByContaId(conta.get().getId());
+
+            // Ordena as transações por data
+            transacoes.sort(Comparator.comparing(Transacao::getDataTransacao).reversed());
+
+            return transacoes;
+        } catch (Exception e) {
+            throw new RepositoryException(Strings.CONTA.ERROR_CREATE, e);
         }
     }
 

@@ -16,7 +16,7 @@ import br.acc.bank.model.Cliente;
 import br.acc.bank.model.Usuario;
 import br.acc.bank.model.enums.UsuarioRole;
 import br.acc.bank.repository.ClienteRepository;
-import br.acc.bank.repository.EnderecoRepository;
+import br.acc.bank.repository.ContaRepository;
 import br.acc.bank.repository.UsuarioRepository;
 import br.acc.bank.util.Strings;
 
@@ -30,7 +30,7 @@ public class ClienteService {
     private ClienteRepository clienteRepository;
 
     @Autowired
-    private EnderecoRepository enderecoRepository;
+    private ContaRepository contaRepository;
 
     public List<Cliente> getAll() {
         try {
@@ -66,8 +66,6 @@ public class ClienteService {
             if (verificarEmailUsuario.isPresent() || verificarCpfUsuario.isPresent()
                 || verificarLoginUsuario != null)
                 throw new ConflictException(Strings.USER.CONFLICT);
-
-            enderecoRepository.save(cliente.getEndereco());
             
             String encryptedPassword = new BCryptPasswordEncoder().encode(cliente.getPassword());
             cliente.setPassword(encryptedPassword);
@@ -129,11 +127,18 @@ public class ClienteService {
         try {
             // Verificar se já existe um cliente pelo id e remover o mesmo
             if (clienteRepository.existsById(id)) {
+                
+                if (contaRepository.existsByClienteId(id)) {
+                    throw new ConflictException(Strings.CLIENTE.DELETE_CONFLICT);
+                }
+
                 clienteRepository.deleteById(id);
             } else {
                 throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);
             }
         } catch (NotFoundException e) {
+            throw e;
+        } catch (ConflictException e) {
             throw e;
         } catch (Exception e) {
             throw new RepositoryException(Strings.CLIENTE.ERROR_DELETE, e);

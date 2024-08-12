@@ -9,6 +9,7 @@ public abstract class Strings {
         public static final String ERROR_FIND_ALL_LIST = "Erro ao obter a lista de agências";
         public static final String NOT_FOUND = "Agência não encontrada.";
         public static final String CONFLICT = "Número da agência já utilizado.";
+        public static final String DELETE_CONFLICT = "A agência está vinculada com uma ou mais contas.";
         public static final String ERROR_FIND_BY_ID = "Erro ao tentar obter uma agência por seu ID.";
         public static final String ERROR_CREATE = "Erro ao tentar criar uma agência.";
         public static final String ERROR_UPDATE = "Erro ao tentar atualizar uma agência.";
@@ -27,6 +28,7 @@ public abstract class Strings {
         public static final String ERROR_CREATE = "Erro ao tentar criar um cliente.";
         public static final String ERROR_UPDATE = "Erro ao tentar atualizar um cliente.";
         public static final String ERROR_DELETE = "Erro ao tentar deletar um cliente.";
+        public static final String DELETE_CONFLICT = "O cliente está vinculado a uma conta.";
     }
 
     public static final class ADMIN {

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.acc.bank.dto.conta.ContaRequestDTO;
 import br.acc.bank.dto.conta.ContaResponseDTO;
+import br.acc.bank.dto.conta.TransacoesContaResponseDTO;
 import br.acc.bank.model.enums.TipoConta;
 import br.acc.bank.security.TokenService;
 import br.acc.bank.service.ContaService;
@@ -88,6 +89,29 @@ public class ContaController {
         try {
             contaService.delete(id);
             return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @GetMapping("/extrato")
+    public ResponseEntity<List<TransacoesContaResponseDTO>> getExtrato(
+            @RequestHeader(value = "Authorization") String authorizationHeader) {
+        try {
+            // Extrai o token JWT do cabeçalho Authorization
+            String token = tokenService.extractTokenFromHeader(authorizationHeader);
+
+            // Obtém o login do usuário a partir do token JWT
+            String userInfoToken = tokenService.getUserLoginFromToken(token);
+
+            var extratoTransacaoes = contaService.getExtrato(userInfoToken);
+
+            var extrato = extratoTransacaoes.stream()
+                    .map(transacao -> MapperConverter.convertToDto(
+                            transacao,
+                            TransacoesContaResponseDTO.class))
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(extrato);
         } catch (Exception e) {
             throw e;
         }

@@ -12,7 +12,7 @@ import br.acc.bank.exception.NotFoundException;
 import br.acc.bank.exception.RepositoryException;
 import br.acc.bank.model.Agencia;
 import br.acc.bank.repository.AgenciaRepository;
-import br.acc.bank.repository.EnderecoRepository;
+import br.acc.bank.repository.ContaRepository;
 import br.acc.bank.util.Strings;
 
 @Service
@@ -22,7 +22,7 @@ public class AgenciaService {
     private AgenciaRepository agenciaRepository;
 
     @Autowired
-    private EnderecoRepository enderecoRepository;
+    private ContaRepository contaRepository;
 
     public List<Agencia> getAll() {
         try {
@@ -54,8 +54,6 @@ public class AgenciaService {
             // Verificar se já existe uma agencia com o mesmo número
             if (vericiarNumeroAgencia.isPresent())
                 throw new ConflictException(Strings.AGENCIA.CONFLICT);
-
-            enderecoRepository.save(agencia.getEndereco());
 
             return agenciaRepository.save(agencia);
         } catch (ConflictException e) {
@@ -89,8 +87,6 @@ public class AgenciaService {
                 return agenciaMap;
             });
 
-            enderecoRepository.save(agenciaUpdate.get().getEndereco());
-
             return agenciaRepository.save(agenciaUpdate.get());
         } catch (NotFoundException e) {
             throw e;
@@ -105,11 +101,18 @@ public class AgenciaService {
         try {
             // Verificar se já existe uma agencia pelo id e remover a mesma
             if (agenciaRepository.existsById(id)) {
+
+                if (contaRepository.existsByAgenciaId(id)) {
+                    throw new ConflictException(Strings.AGENCIA.DELETE_CONFLICT);
+                }
+
                 agenciaRepository.deleteById(id);
             } else {
                 throw new NotFoundException(Strings.AGENCIA.NOT_FOUND);
             }
         } catch (NotFoundException e) {
+            throw e;
+        } catch (ConflictException e) {
             throw e;
         } catch (Exception e) {
             throw new RepositoryException(Strings.AGENCIA.ERROR_DELETE, e);
