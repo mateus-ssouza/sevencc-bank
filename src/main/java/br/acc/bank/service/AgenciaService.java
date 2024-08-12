@@ -24,6 +24,7 @@ public class AgenciaService {
     @Autowired
     private ContaRepository contaRepository;
 
+    // Listar todas as agencias
     public List<Agencia> getAll() {
         try {
             return agenciaRepository.findAll();
@@ -32,6 +33,7 @@ public class AgenciaService {
         }
     }
 
+    // Listar agencia pelo seu id 
     public Optional<Agencia> getById(Long id) {
         try {
             Optional<Agencia> agencia = agenciaRepository.findById(id);
@@ -47,6 +49,7 @@ public class AgenciaService {
         }
     }
 
+    // Criar uma agencia
     @Transactional
     public Agencia create(Agencia agencia) {
         try {
@@ -63,11 +66,13 @@ public class AgenciaService {
         }
     }
 
+    // Atualizar dados de uma agencia
     @Transactional
     public Agencia update(Long id, Agencia agencia) {
         try {
             Optional<Agencia> agenciaModel = agenciaRepository.findById(id);
 
+            // Verificar se existe uma agencia pelo id
             if (!agenciaModel.isPresent())
                 throw new NotFoundException(Strings.AGENCIA.NOT_FOUND);
             
@@ -79,6 +84,7 @@ public class AgenciaService {
                 (vericiarNumeroAgencia.get().getId() != agenciaModel.get().getId()))
                 throw new ConflictException(Strings.AGENCIA.CONFLICT);
 
+            // Atualizar agencia com novos dados
             Optional<Agencia> agenciaUpdate = agenciaModel.map(agenciaMap -> {
                 agenciaMap.setNome(agencia.getNome());
                 agenciaMap.setNumero(agencia.getNumero());
@@ -97,11 +103,12 @@ public class AgenciaService {
         }
     }
 
+    // Remover uma agencia
     public void delete(Long id) {
         try {
             // Verificar se já existe uma agencia pelo id e remover a mesma
             if (agenciaRepository.existsById(id)) {
-
+                // Verificar se existem contas cadastradas vinculadas a agencia
                 if (contaRepository.existsByAgenciaId(id)) {
                     throw new ConflictException(Strings.AGENCIA.DELETE_CONFLICT);
                 }

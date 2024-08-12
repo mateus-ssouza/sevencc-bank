@@ -42,11 +42,16 @@ public class ContaService {
     @Autowired
     private TransacaoRepository transacaoRepository;
 
+    // Listar todas as contas
     public List<Conta> getAll(TipoConta tipo) {
         try {
+            // Se não passar o tipo como parametro
+            // Trazer todas as contas cadastradas
             if (tipo == null) {
                 return contaRepository.findAll();
-            } else {
+            } // Se passar o tipo como parametro, 
+            // filtrar contas pelo seu tipo (CORRENTE OU POUPANCA) 
+            else {
                 return contaRepository.findAllByTipo(tipo);
             }
         } catch (Exception e) {
@@ -54,9 +59,11 @@ public class ContaService {
         }
     }
 
+    // Listar conta pelo seu id
     public Optional<Conta> getById(Long id) {
         try {
             Optional<Conta> conta = contaRepository.findById(id);
+            // Verificar se não existe conta com o id passado
             if (!conta.isPresent())
                 throw new NotFoundException(Strings.CONTA.NOT_FOUND);
 
@@ -68,26 +75,30 @@ public class ContaService {
         }
     }
 
+    // Criar uma conta
     @Transactional
     public Conta create(ContaRequestDTO conta, String userLoginByToken) {
         try {
             Optional<Agencia> agencia = agenciaRepository.findByNumero(conta.getNumeroDaAgencia());
+            // Verificar se existe agencia
             if (!agencia.isPresent())
                 throw new NotFoundException(Strings.AGENCIA.NOT_FOUND);
 
             Optional<Cliente> cliente = clienteRepository.findByLogin(userLoginByToken);
-
+            // Verificar se existe cliente
             if (!cliente.isPresent())
                 throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);
 
             boolean existeConta = contaRepository.existsByClienteId(cliente.get().getId());
-
+            // Verificar se existe conta com o id do cliente informado
             if (existeConta) 
                 throw new ConflictException(Strings.CONTA.CONFLICT_ACCOUNT);
 
+            // Gerar código para a conta
             Long numeroContaGerado = gerarNumeroConta();
 
             Conta savedConta;
+            // Verificar o tipo informado para criar conta baseado eu seu tipo
             switch (conta.getTipo()) {
                 case CORRENTE:
                     savedConta = new ContaCorrente(null, numeroContaGerado, agencia.get(), cliente.get());
@@ -111,13 +122,14 @@ public class ContaService {
         }
     }
 
+    // Remover uma conta
     public void delete(Long id) {
         try {
             // Verificar se já existe uma conta pelo id
             Optional<Conta> conta = contaRepository.findById(id);
             if (!conta.isPresent())
                 throw new NotFoundException(Strings.CONTA.NOT_FOUND);
-            // Verificar se o saldo ta zerado
+            // Verificar se o saldo está zerado
             BigDecimal saldo = conta.get().getSaldo();
             if (saldo.compareTo(BigDecimal.ZERO) != 0)
                 throw new NotFoundException(Strings.CONTA.ERROR_NOT_ZEROED);
@@ -130,11 +142,13 @@ public class ContaService {
         }
     }
 
+    // Gerar extrato com transações da conta
     @Transactional
     public List<Transacao> getExtrato(String userLoginByToken) {
         try {
+            // Buscando cliente pelo login passado no token
             Optional<Cliente> cliente = clienteRepository.findByLogin(userLoginByToken);
-
+            // Verifica se o cliente existe
             if (!cliente.isPresent())
                 throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);
             
@@ -156,6 +170,7 @@ public class ContaService {
         }
     }
 
+    // Função auxiliar para gerar o número da conta
     private Long gerarNumeroConta() {
         Long numero;
         do {
@@ -164,6 +179,7 @@ public class ContaService {
         return numero;
     }
 
+    // Função auxiliar para gerar o digitos aleatórios
     private Long digitosAleatorio() {
         // Gerar um número aleatório de 6 dígitos entre 100.000 e 999.999
         return 100_000L + (long) (Math.random() * 900_000);

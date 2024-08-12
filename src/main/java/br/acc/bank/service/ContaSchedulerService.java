@@ -12,9 +12,9 @@ import br.acc.bank.repository.ContaRepository;
 
 @Service
 public class ContaSchedulerService {
-    // 0.5% de juros
+    // Constante para representar 0.5% de juros
     private static final BigDecimal JUROS_MENSAL = BigDecimal.valueOf(0.005);
-    // Tarifa de R$ 20,00
+    // Constante para representar tarifa de R$ 20,00
     private static final BigDecimal TARIFA_MENSAL = BigDecimal.valueOf(20);
 
     @Autowired

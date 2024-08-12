@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
 
+// Validate criado para verificar se a data passada não é uma data futura
 public class PastDateValidator implements ConstraintValidator<PastDate, LocalDate> {
 
     @Override

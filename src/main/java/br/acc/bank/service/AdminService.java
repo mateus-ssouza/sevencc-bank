@@ -28,6 +28,7 @@ public class AdminService {
     @Autowired
     private AdminRepository adminRepository;
 
+    // Listando todos os admins
     public List<Admin> getAll() {
         try {
             return adminRepository.findAll();
@@ -36,6 +37,7 @@ public class AdminService {
         }
     }
 
+    // Buscar admin pelo seu id
     public Optional<Admin> getById(Long id) {
         try {
             Optional<Admin> admin = adminRepository.findById(id);
@@ -51,6 +53,7 @@ public class AdminService {
         }
     }
 
+    // Criar um usuário do tipo Admin
     @Transactional
     public Admin create(Admin admin) {
         try {
@@ -63,8 +66,10 @@ public class AdminService {
                     || verificarLoginUsuario != null)
                 throw new ConflictException(Strings.USER.CONFLICT);
 
+            // Criptografar a senha do usuário
             String encryptedPassword = new BCryptPasswordEncoder().encode(admin.getPassword());
             admin.setPassword(encryptedPassword);
+            // Setar usuário como tipo admin
             admin.setRole(UsuarioRole.ADMIN);
 
             return adminRepository.save(admin);
@@ -75,11 +80,13 @@ public class AdminService {
         }
     }
 
+    // Atualizar os dados de um Admin
     @Transactional
     public Admin update(Long id, Admin admin) {
         try {
             Optional<Admin> adminModel = adminRepository.findById(id);
 
+            // Verificar se existe um admin pelo id
             if (!adminModel.isPresent())
                 throw new NotFoundException(Strings.ADMIN.NOT_FOUND);
 
@@ -88,16 +95,14 @@ public class AdminService {
             UserDetails verificarLoginUsuario = usuarioRepository.findByLogin(admin.getLogin());
             Optional<Long> idUsuario = usuarioRepository.findIdByLogin(admin.getLogin());
 
-            // Verificar se já existe um admin com o mesmo email, CPF ou login
+            // Verificar se já existe um usuário com o mesmo email, CPF ou login
             // E se é o mesmo admin que deseja mudar esses campos
-            if ((verificarEmailUsuario.isPresent()
-                    && !verificarEmailUsuario.get().getId().equals(adminModel.get().getId())) ||
-                    (verificarCpfUsuario.isPresent()
-                            && !verificarCpfUsuario.get().getId().equals(adminModel.get().getId()))
-                    ||
+            if ((verificarEmailUsuario.isPresent() && !verificarEmailUsuario.get().getId().equals(adminModel.get().getId())) ||
+                    (verificarCpfUsuario.isPresent() && !verificarCpfUsuario.get().getId().equals(adminModel.get().getId())) ||
                     (verificarLoginUsuario != null && !idUsuario.get().equals(adminModel.get().getId())))
                 throw new ConflictException(Strings.USER.CONFLICT);
 
+            // Atualizando os campos do admin
             Admin adminAtualizado = adminModel.get();
             adminAtualizado.setNome(admin.getNome());
             adminAtualizado.setCpf(admin.getCpf());
@@ -105,6 +110,7 @@ public class AdminService {
             adminAtualizado.setDataNascimento(admin.getDataNascimento());
             adminAtualizado.setEmail(admin.getEmail());
             adminAtualizado.setLogin(admin.getLogin());
+            // Criptografar a nova senha do admin
             String encryptedPassword = new BCryptPasswordEncoder().encode(admin.getPassword());
             adminAtualizado.setPassword(encryptedPassword);
 
@@ -118,10 +124,12 @@ public class AdminService {
         }
     }
 
+    // Remover um Admin
     public void delete(Long id) {
         try {
-            // Verificar se já existe um admin pelo id e remover o mesmo
+            // Verificar se existe um admin pelo id
             if (adminRepository.existsById(id)) {
+                // Removendo admin pelo seu id
                 adminRepository.deleteById(id);
             } else {
                 throw new NotFoundException(Strings.ADMIN.NOT_FOUND);

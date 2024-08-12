@@ -32,6 +32,7 @@ public class ClienteService {
     @Autowired
     private ContaRepository contaRepository;
 
+    // Listando todos os clientes
     public List<Cliente> getAll() {
         try {
             return clienteRepository.findAll();
@@ -40,6 +41,7 @@ public class ClienteService {
         }
     }
 
+    // Buscar cliente pelo seu id
     public Optional<Cliente> getById(Long id) {
         try {
             Optional<Cliente> cliente = clienteRepository.findById(id);
@@ -55,6 +57,7 @@ public class ClienteService {
         }
     }
 
+    // Criar um usuário do tipo CLiente
     @Transactional
     public Cliente create(Cliente cliente) {
         try {
@@ -62,13 +65,15 @@ public class ClienteService {
             Optional<Usuario> verificarCpfUsuario = usuarioRepository.findByCpf(cliente.getCpf());
             UserDetails verificarLoginUsuario = usuarioRepository.findByLogin(cliente.getLogin());
 
-            // Verificar se já existe um cliente com o mesmo email, CPF ou login
+            // Verificar se já existe um usuário com o mesmo email, CPF ou login
             if (verificarEmailUsuario.isPresent() || verificarCpfUsuario.isPresent()
-                || verificarLoginUsuario != null)
+                    || verificarLoginUsuario != null)
                 throw new ConflictException(Strings.USER.CONFLICT);
-            
+
+            // Criptografar a senha do usuário
             String encryptedPassword = new BCryptPasswordEncoder().encode(cliente.getPassword());
             cliente.setPassword(encryptedPassword);
+            // Setar usuário como tipo usuario
             cliente.setRole(UsuarioRole.USUARIO);
 
             return clienteRepository.save(cliente);
@@ -79,11 +84,13 @@ public class ClienteService {
         }
     }
 
-     @Transactional
+    // Atualizar os dados de um Cliente
+    @Transactional
     public Cliente update(Long id, Cliente cliente) {
         try {
             Optional<Cliente> clienteModel = clienteRepository.findById(id);
 
+            // Verificar se existe um cliente pelo id
             if (!clienteModel.isPresent())
                 throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);
 
@@ -92,26 +99,25 @@ public class ClienteService {
             UserDetails verificarLoginUsuario = usuarioRepository.findByLogin(cliente.getLogin());
             Optional<Long> idUsuario = usuarioRepository.findIdByLogin(cliente.getLogin());
 
-            // Verificar se já existe um cliente com o mesmo email, CPF ou login
+            // Verificar se já existe um usuário com o mesmo email, CPF ou login
             // E se é o mesmo cliente que deseja mudar esses campos
-            if ((verificarEmailUsuario.isPresent()
-                    && !verificarEmailUsuario.get().getId().equals(clienteModel.get().getId())) ||
-                    (verificarCpfUsuario.isPresent()
-                            && !verificarCpfUsuario.get().getId().equals(clienteModel.get().getId()))
-                    ||
+            if ((verificarEmailUsuario.isPresent() && !verificarEmailUsuario.get().getId().equals(clienteModel.get().getId())) ||
+                    (verificarCpfUsuario.isPresent() && !verificarCpfUsuario.get().getId().equals(clienteModel.get().getId())) ||
                     (verificarLoginUsuario != null && !idUsuario.get().equals(clienteModel.get().getId())))
                 throw new ConflictException(Strings.USER.CONFLICT);
 
+            // Atualizando os campos do cliente   
             Cliente clienteAtualizado = clienteModel.get();
             clienteAtualizado.setNome(cliente.getNome());
             clienteAtualizado.setCpf(cliente.getCpf());
             clienteAtualizado.setTelefone(cliente.getTelefone());
             clienteAtualizado.setDataNascimento(cliente.getDataNascimento());
             clienteAtualizado.setEmail(cliente.getEmail());
+            clienteAtualizado.setEndereco(cliente.getEndereco());
             clienteAtualizado.setLogin(cliente.getLogin());
+            // Criptografar a nova senha do admin
             String encryptedPassword = new BCryptPasswordEncoder().encode(cliente.getPassword());
             clienteAtualizado.setPassword(encryptedPassword);
-            clienteAtualizado.setEndereco(cliente.getEndereco());
 
             return clienteRepository.save(clienteAtualizado);
         } catch (NotFoundException e) {
@@ -123,15 +129,16 @@ public class ClienteService {
         }
     }
 
+    // Remover um Cliente
     public void delete(Long id) {
         try {
-            // Verificar se já existe um cliente pelo id e remover o mesmo
+            // Verificar se existe um cliente pelo id
             if (clienteRepository.existsById(id)) {
-                
+                // Verificar se existe conta cadastrada vinculada ao cliente
                 if (contaRepository.existsByClienteId(id)) {
                     throw new ConflictException(Strings.CLIENTE.DELETE_CONFLICT);
                 }
-
+                // Removendo cliente pelo seu id
                 clienteRepository.deleteById(id);
             } else {
                 throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);

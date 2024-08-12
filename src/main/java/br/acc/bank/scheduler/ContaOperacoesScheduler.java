@@ -12,7 +12,7 @@ public class ContaOperacoesScheduler {
     @Autowired
     private ContaSchedulerService schedulerService;
 
-    // Aplica as opereações no primeiro dia de cada mês à meia-noite
+    // Aplica as operações no primeiro dia de cada mês à meia-noite
     @Scheduled(cron = "0 0 0 1 * ?")
     public void verificarDataAplicarOperacoes() {
         // Aplica juros em todas as contas POUPANCA
