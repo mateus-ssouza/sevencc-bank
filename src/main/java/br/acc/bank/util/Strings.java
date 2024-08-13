@@ -29,6 +29,7 @@ public abstract class Strings {
         public static final String ERROR_UPDATE = "Erro ao tentar atualizar um cliente.";
         public static final String ERROR_DELETE = "Erro ao tentar deletar um cliente.";
         public static final String DELETE_CONFLICT = "O cliente está vinculado a uma conta.";
+        public static final String ERROR_MY_PROFILE = "Erro ao tentar obter detalhes do meu perfil.";
     }
 
     public static final class ADMIN {
@@ -51,6 +52,8 @@ public abstract class Strings {
         public static final String ERROR_DELETE = "Erro ao tentar deletar uma conta.";
         public static final String ERROR_NOT_ZEROED = "Conta deve está com saldo zerado.";
         public static final String ERROR_TYPE_INVALID = "Tipo de conta inválido, tipos válidos: [CORRENTE, POUPANCA].";
+        public static final String ERROR_EXTRACT = "Erro ao tentar gerar o extrato da conta.";
+        public static final String ERROR_DETAILS = "Erro ao tentar obter detalhes de uma conta.";
     }
 
     public static final class TRANSACAO {
@@ -68,6 +71,7 @@ public abstract class Strings {
     }
 
     public static final class ERROR {
+        public static final String GENERATE_TOKEN = "Erro ao gerar token.";
         public static final String INVALID_TOKEN = "Token inválido.";
         public static final String INVALID_TOKEN_FORMAT = "Token com formato inválido.";
     }

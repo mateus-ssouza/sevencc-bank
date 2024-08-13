@@ -151,4 +151,21 @@ public class ClienteService {
             throw new RepositoryException(Strings.CLIENTE.ERROR_DELETE, e);
         }
     }
+
+    // Cliente visualizar os dados do seu perfil
+    public Optional<Cliente> meuPerfil(String userLoginByToken) {
+        try {
+            // Buscando cliente pelo login passado no token
+            Optional<Cliente> cliente = clienteRepository.findByLogin(userLoginByToken);
+            // Verifica se o cliente existe
+            if (!cliente.isPresent())
+                throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);
+
+            return cliente;
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RepositoryException(Strings.CLIENTE.ERROR_MY_PROFILE, e);
+        }
+    }
 }

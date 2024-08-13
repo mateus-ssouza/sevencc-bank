@@ -18,6 +18,7 @@ import br.acc.bank.dto.auth.LoginResponseDTO;
 import br.acc.bank.dto.cliente.ClienteRequestDTO;
 import br.acc.bank.dto.cliente.ClienteResponseDTO;
 import br.acc.bank.exception.AuthException;
+import br.acc.bank.exception.ErrorResponse;
 import br.acc.bank.model.Cliente;
 import br.acc.bank.model.Usuario;
 import br.acc.bank.security.TokenService;
@@ -25,9 +26,17 @@ import br.acc.bank.service.ClienteService;
 import br.acc.bank.util.MapperConverter;
 import br.acc.bank.util.Strings;
 import br.acc.bank.util.ValidationUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("auth")
+@Tag(name = "auth", description = "rotas autenticação e registro")
 public class AuthenticationController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -37,6 +46,16 @@ public class AuthenticationController {
     private TokenService tokenService;
 
     @PostMapping("/login")
+    @Operation(summary = "Realiza o login de um usuário", description = "Autentica o usuário e retorna um token JWT.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login realizado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Credenciais inválidas", content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "Credenciais inválidas", value = "{\"status\": 401, \"message\": \"login ou password inválidos.\", \"cause\": null}")
+            }, schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "Erro ao gerar token", value = "{\"status\": 500, \"message\": \"Erro ao gerar token.\", \"cause\": \"Detalhes do erro interno\"}")
+            }, schema = @Schema(implementation = ErrorResponse.class)))
+    })
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO login,
             BindingResult validateFields) {
         try {
@@ -57,6 +76,16 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
+    @Operation(summary = "Realiza o registro de um novo cliente", description = "Cria um novo cliente e retorna os dados do cliente criado.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Cliente registrado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClienteResponseDTO.class))),
+            @ApiResponse(responseCode = "409", description = "Requisição inválida", content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "Conflito de usuário", value = "{\"status\": 409, \"message\": \"Cpf, e-mail ou login do usuário já utilizado.\", \"cause\": null}")
+            }, schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "Erro ao criar cliente", value = "{\"status\": 500, \"message\": \"Erro ao tentar criar um cliente.\", \"cause\": \"Detalhes do erro interno\"}")
+            }, schema = @Schema(implementation = ErrorResponse.class)))
+    })
     public ResponseEntity<ClienteResponseDTO> register(@RequestBody @Valid ClienteRequestDTO clienteRequestDTO,
             BindingResult validateFields) {
 

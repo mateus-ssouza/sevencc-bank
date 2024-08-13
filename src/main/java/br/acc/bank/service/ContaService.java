@@ -132,10 +132,12 @@ public class ContaService {
             // Verificar se o saldo está zerado
             BigDecimal saldo = conta.get().getSaldo();
             if (saldo.compareTo(BigDecimal.ZERO) != 0)
-                throw new NotFoundException(Strings.CONTA.ERROR_NOT_ZEROED);
+                throw new ConflictException(Strings.CONTA.ERROR_NOT_ZEROED);
 
             contaRepository.deleteById(id);
         } catch (NotFoundException e) {
+            throw e;
+        } catch (ConflictException e) {
             throw e;
         } catch (Exception e) {
             throw new RepositoryException(Strings.AGENCIA.ERROR_DELETE, e);
@@ -166,7 +168,30 @@ public class ContaService {
 
             return transacoes;
         } catch (Exception e) {
-            throw new RepositoryException(Strings.CONTA.ERROR_CREATE, e);
+            throw new RepositoryException(Strings.CONTA.ERROR_EXTRACT, e);
+        }
+    }
+
+    // Cliente visualizar os dados da sua conta
+    public Optional<Conta> detailsConta(String userLoginByToken) {
+        try {
+            // Buscando cliente pelo login passado no token
+            Optional<Cliente> cliente = clienteRepository.findByLogin(userLoginByToken);
+            // Verifica se o cliente existe
+            if (!cliente.isPresent())
+                throw new NotFoundException(Strings.CLIENTE.NOT_FOUND);
+
+            // Verifica se a conta existe
+            Optional<Conta> conta = contaRepository.findByClienteId(cliente.get().getId());
+            if (!conta.isPresent()) {
+                throw new NotFoundException(Strings.CONTA.NOT_FOUND);
+            }
+
+            return conta;
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RepositoryException(Strings.CONTA.ERROR_DETAILS, e);
         }
     }
 
