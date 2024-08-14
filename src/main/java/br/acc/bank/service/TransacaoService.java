@@ -145,7 +145,7 @@ public class TransacaoService {
 
             // Buscando conta destino pelo número da conta
             Optional<Conta> contaDestino = contaRepository.findByNumero(transacao.getNumeroContaDestino());
-            // Verificar se conta origem existe
+            // Verificar se conta destino existe
             if (!contaDestino.isPresent())
                 throw new NotFoundException(Strings.TRANSACAO.NOT_FOUND_DESTINATION);
 

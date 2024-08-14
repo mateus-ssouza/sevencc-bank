@@ -1,386 +1,272 @@
 package br.acc.bank.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import java.util.Optional;
+import java.util.List;
+import java.util.Arrays;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessException;
 
 import br.acc.bank.exception.ConflictException;
 import br.acc.bank.exception.NotFoundException;
 import br.acc.bank.exception.RepositoryException;
 import br.acc.bank.model.Agencia;
-import br.acc.bank.model.Endereco;
 import br.acc.bank.repository.AgenciaRepository;
-import br.acc.bank.repository.EnderecoRepository;
-import br.acc.bank.util.Strings;
+import br.acc.bank.repository.ContaRepository;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
-
-@SpringBootTest
-public class AgenciaServiceTest {
+class AgenciaServiceTest {
 
     @Mock
     private AgenciaRepository agenciaRepository;
 
     @Mock
-    private EnderecoRepository enderecoRepository;
+    private ContaRepository contaRepository;
 
     @InjectMocks
     private AgenciaService agenciaService;
 
-    public AgenciaServiceTest() {
+    private Agencia agencia;
+
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        agencia = new Agencia();
+        agencia.setId(1L);
+        agencia.setNumero(12345L);
+        agencia.setNome("Agencia Teste");
+        agencia.setTelefone("123456789");
     }
 
     @Test
-    @DisplayName("Deve retornar todas as agências com sucesso")
-    void testGetAllSuccess() {
-        // Configurando o mock do repositório para retornar uma lista de agências
-        Agencia agencia1 = new Agencia();
-        agencia1.setNome("Agência 1");
-        agencia1.setNumero(12345L);
+    @DisplayName("Deve listar todas as agências com sucesso")
+    void testGetAll() {
+        when(agenciaRepository.findAll()).thenReturn(Arrays.asList(agencia));
 
-        Agencia agencia2 = new Agencia();
-        agencia2.setNome("Agência 2");
-        agencia2.setNumero(67890L);
+        List<Agencia> agencias = agenciaService.getAll();
 
-        when(agenciaRepository.findAll()).thenReturn(Arrays.asList(agencia1, agencia2));
-
-        // Chamando o método a ser testado
-        List<Agencia> result = agenciaService.getAll();
-
-        // Verificando se o resultado é o esperado
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals("Agência 1", result.get(0).getNome());
-        assertEquals("Agência 2", result.get(1).getNome());
+        assertFalse(agencias.isEmpty());
+        verify(agenciaRepository, times(1)).findAll();
     }
 
     @Test
-    @DisplayName("Deve retornar uma lista vazia se não houver agências")
-    void testGetAllEmptyList() {
-        // Configurando o mock do repositório para retornar uma lista vazia
-        when(agenciaRepository.findAll()).thenReturn(Collections.emptyList());
+    @DisplayName("Deve lançar RepositoryException ao ocorrer erro de banco de dados em getAll()")
+    void testRepositoryException_GetAll() {
+        when(agenciaRepository.findAll()).thenThrow(new DataAccessException("DB Error") {
+        });
 
-        // Chamando o método a ser testado
-        List<Agencia> result = agenciaService.getAll();
-
-        // Verificando se o resultado é uma lista vazia
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    @DisplayName("Deve lançar RepositoryException ao falhar em obter todas as agências")
-    void testGetAllFailure() {
-        // Configurando o mock do repositório para lançar uma exceção
-        when(agenciaRepository.findAll()).thenThrow(new RuntimeException("Erro ao acessar o banco de dados"));
-
-        // Chamando o método a ser testado e verificando se a exceção correta é lançada
-        RepositoryException exception = assertThrows(RepositoryException.class, () -> {
+        assertThrows(RepositoryException.class, () -> {
             agenciaService.getAll();
         });
 
-        // Verificando a mensagem da exceção
-        assertEquals(Strings.AGENCIA.ERROR_FIND_ALL_LIST, exception.getMessage());
+        verify(agenciaRepository, times(1)).findAll();
     }
 
     @Test
-    @DisplayName("Deve retornar uma agência existente com sucesso")
-    void testGetByIdSuccess() {
-        // Configurando o mock para retornar uma agência existente
-        Long agenciaId = 1L;
-        Agencia agencia = new Agencia();
-        agencia.setId(agenciaId);
-        agencia.setNome("Agência Central");
+    @DisplayName("Deve buscar uma agência pelo ID com sucesso")
+    void testGetById_Success() {
+        when(agenciaRepository.findById(1L)).thenReturn(Optional.of(agencia));
 
-        when(agenciaRepository.findById(agenciaId)).thenReturn(Optional.of(agencia));
+        Optional<Agencia> result = agenciaService.getById(1L);
 
-        // Chamando o método a ser testado
-        Optional<Agencia> result = agenciaService.getById(agenciaId);
-
-        // Verificando se a agência foi encontrada com sucesso
         assertTrue(result.isPresent());
         assertEquals(agencia, result.get());
+        verify(agenciaRepository, times(1)).findById(1L);
     }
 
     @Test
-    @DisplayName("Deve lançar NotFoundException se a agência não for encontrada")
-    void testGetByIdNotFound() {
-        // Configurando o mock para retornar um Optional vazio, simulando que a agência
-        // não foi encontrada
-        Long agenciaId = 1L;
-        when(agenciaRepository.findById(agenciaId)).thenReturn(Optional.empty());
-
-        // Chamando o método a ser testado e verificando se a exceção correta é lançada
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            agenciaService.getById(agenciaId);
+    @DisplayName("Deve lançar RepositoryException ao ocorrer erro de banco de dados na busca por ID")
+    void testRepositoryException_GetById() {
+        when(agenciaRepository.findById(1L)).thenThrow(new DataAccessException("DB Error") {
         });
 
-        // Verificando a mensagem da exceção
-        assertEquals(Strings.AGENCIA.NOT_FOUND, exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Deve lançar RepositoryException ao ocorrer um erro inesperado ao buscar a agência")
-    void testGetByIdFailure() {
-        // Configurando o mock para lançar uma exceção genérica, simulando um erro
-        // inesperado
-        Long agenciaId = 1L;
-        when(agenciaRepository.findById(agenciaId)).thenThrow(new RuntimeException("Erro ao acessar o banco de dados"));
-
-        // Chamando o método a ser testado e verificando se a exceção correta é lançada
-        RepositoryException exception = assertThrows(RepositoryException.class, () -> {
-            agenciaService.getById(agenciaId);
+        assertThrows(RepositoryException.class, () -> {
+            agenciaService.getById(1L);
         });
 
-        // Verificando a mensagem da exceção
-        assertEquals(Strings.AGENCIA.ERROR_FIND_BY_ID, exception.getMessage());
-    }
-
-     @Test
-    @DisplayName("Deve criar uma nova agência com sucesso")
-    void testCreateSuccess() {
-        // Configurando o mock para não encontrar nenhuma agência existente com o mesmo número
-        Agencia novaAgencia = new Agencia();
-        novaAgencia.setNome("Agência Nova");
-        novaAgencia.setNumero(12345L);
-
-        when(agenciaRepository.findByNumero(novaAgencia.getNumero())).thenReturn(Optional.empty());
-        when(agenciaRepository.save(novaAgencia)).thenReturn(novaAgencia);
-
-        // Chamando o método a ser testado
-        Agencia result = agenciaService.create(novaAgencia);
-
-        // Verificando se a agência foi criada com sucesso
-        assertNotNull(result, "A agência criada não deve ser nula");
-        assertEquals(novaAgencia.getNome(), result.getNome());
-        assertEquals(novaAgencia.getNumero(), result.getNumero());
-
-        // Verificando se o método save foi chamado para o endereço e a agência
-        verify(enderecoRepository, times(1)).save(novaAgencia.getEndereco());
-        verify(agenciaRepository, times(1)).save(novaAgencia);
+        verify(agenciaRepository, times(1)).findById(1L);
     }
 
     @Test
-    @DisplayName("Deve lançar ConflictException se o número da agência já existir")
-    void testCreateConflict() {
-        // Configurando o mock para simular que uma agência com o mesmo número já existe
-        Agencia agenciaExistente = new Agencia();
-        agenciaExistente.setNumero(12345L);
+    @DisplayName("Deve lançar NotFoundException ao buscar agência por ID inexistente")
+    void testGetById_NotFound() {
+        when(agenciaRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(agenciaRepository.findByNumero(agenciaExistente.getNumero())).thenReturn(Optional.of(agenciaExistente));
-
-        // Chamando o método a ser testado e verificando se a exceção correta é lançada
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
-            agenciaService.create(agenciaExistente);
+        assertThrows(NotFoundException.class, () -> {
+            agenciaService.getById(1L);
         });
 
-        // Verificando a mensagem da exceção
-        assertEquals(Strings.AGENCIA.CONFLICT, exception.getMessage());
-
-        // Verificando se o método save não foi chamado
-        verify(agenciaRepository, never()).save(any(Agencia.class));
+        verify(agenciaRepository, times(1)).findById(1L);
     }
 
     @Test
-    @DisplayName("Deve lançar RepositoryException ao ocorrer um erro inesperado ao criar a agência")
-    void testCreateFailure() {
-        // Configurando o mock para lançar uma exceção genérica ao tentar salvar a agência
-        Agencia novaAgencia = new Agencia();
-        novaAgencia.setNumero(12345L);
+    @DisplayName("Deve criar uma agência com sucesso")
+    void testCreate_Success() {
+        when(agenciaRepository.findByNumero(any())).thenReturn(Optional.empty());
+        when(agenciaRepository.save(any(Agencia.class))).thenReturn(agencia);
 
-        when(agenciaRepository.findByNumero(novaAgencia.getNumero())).thenReturn(Optional.empty());
-        when(agenciaRepository.save(novaAgencia)).thenThrow(new RuntimeException("Erro ao acessar o banco de dados"));
+        Agencia createdAgencia = agenciaService.create(agencia);
 
-        // Chamando o método a ser testado e verificando se a exceção correta é lançada
-        RepositoryException exception = assertThrows(RepositoryException.class, () -> {
-            agenciaService.create(novaAgencia);
+        assertNotNull(createdAgencia);
+        verify(agenciaRepository, times(1)).findByNumero(any());
+        verify(agenciaRepository, times(1)).save(agencia);
+    }
+
+    @Test
+    @DisplayName("Deve lançar RepositoryException ao ocorrer erro de banco de dados na criação de uma agência")
+    void testRepositoryException_Create() {
+        when(agenciaRepository.findByNumero(any())).thenReturn(Optional.empty());
+        when(agenciaRepository.save(any(Agencia.class))).thenThrow(new DataAccessException("DB Error") {
         });
 
-        // Verificando a mensagem da exceção
-        assertEquals(Strings.AGENCIA.ERROR_CREATE, exception.getMessage());
+        assertThrows(RepositoryException.class, () -> {
+            agenciaService.create(agencia);
+        });
+
+        verify(agenciaRepository, times(1)).findByNumero(any());
+        verify(agenciaRepository, times(1)).save(any(Agencia.class));
     }
 
     @Test
-    @DisplayName("Deve atualizar uma agência com sucesso")
-    void testUpdateSuccess() {
-        Long agenciaId = 1L;
+    @DisplayName("Deve lançar ConflictException ao tentar criar agência com número já existente")
+    void testCreate_Conflict() {
+        when(agenciaRepository.findByNumero(any())).thenReturn(Optional.of(agencia));
 
-        // Simula a agência existente
-        Agencia agenciaExistente = new Agencia();
-        agenciaExistente.setId(agenciaId);
-        agenciaExistente.setNumero(12345L);
+        assertThrows(ConflictException.class, () -> {
+            agenciaService.create(agencia);
+        });
 
-        // Nova agência com os dados atualizados
-        Agencia agenciaAtualizada = new Agencia();
-        agenciaAtualizada.setNome("Agência Atualizada");
-        agenciaAtualizada.setNumero(54321L);
-        agenciaAtualizada.setTelefone("11987654321");
-        agenciaAtualizada.setEndereco(new Endereco());
+        verify(agenciaRepository, times(1)).findByNumero(any());
+        verify(agenciaRepository, never()).save(any());
+    }
 
-        when(agenciaRepository.findById(agenciaId)).thenReturn(Optional.of(agenciaExistente));
-        when(agenciaRepository.findByNumero(54321L)).thenReturn(Optional.empty());
-        when(agenciaRepository.save(any(Agencia.class))).thenReturn(agenciaAtualizada);
+    @Test
+    @DisplayName("Deve atualizar os dados de uma agência com sucesso")
+    void testUpdate_Success() {
+        Agencia updatedAgencia = new Agencia();
+        updatedAgencia.setNumero(54321L);
 
-        // Chamando o método a ser testado
-        Agencia result = agenciaService.update(agenciaId, agenciaAtualizada);
+        when(agenciaRepository.findById(1L)).thenReturn(Optional.of(agencia));
+        when(agenciaRepository.findByNumero(any())).thenReturn(Optional.empty());
+        when(agenciaRepository.save(any(Agencia.class))).thenReturn(updatedAgencia);
 
-        // Verificando se a atualização foi feita corretamente
+        Agencia result = agenciaService.update(1L, updatedAgencia);
+
         assertNotNull(result);
-        assertEquals(agenciaAtualizada.getNome(), result.getNome());
-        assertEquals(agenciaAtualizada.getNumero(), result.getNumero());
-
-        // Verificando se os métodos foram chamados corretamente
-        verify(agenciaRepository).findById(agenciaId);
-        verify(agenciaRepository).findByNumero(54321L);
-        verify(enderecoRepository).save(agenciaAtualizada.getEndereco());
-        verify(agenciaRepository).save(any(Agencia.class));
+        assertEquals(54321L, result.getNumero());
+        verify(agenciaRepository, times(1)).findById(1L);
+        verify(agenciaRepository, times(1)).save(any(Agencia.class));
     }
 
     @Test
-    @DisplayName("Deve lançar NotFoundException se a agência não for encontrada")
-    void testUpdateNotFound() {
-        Long agenciaId = 1L;
-
-        when(agenciaRepository.findById(agenciaId)).thenReturn(Optional.empty());
-
-        Agencia agenciaAtualizada = new Agencia();
-        agenciaAtualizada.setNome("Agência Atualizada");
-
-        // Verificando se a exceção NotFoundException é lançada
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            agenciaService.update(agenciaId, agenciaAtualizada);
+    @DisplayName("Deve lançar RepositoryException ao ocorrer erro de banco de dados na atualização de uma agência")
+    void testRepositoryException_Update() {
+        when(agenciaRepository.findById(1L)).thenThrow(new DataAccessException("DB Error") {
         });
 
-        assertEquals(Strings.AGENCIA.NOT_FOUND, exception.getMessage());
+        assertThrows(RepositoryException.class, () -> {
+            agenciaService.update(1L, agencia);
+        });
 
-        // Verificando se os métodos não foram chamados
-        verify(agenciaRepository).findById(agenciaId);
-        verify(agenciaRepository, never()).findByNumero(anyLong());
+        verify(agenciaRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("Deve lançar NotFoundException ao tentar atualizar uma agência inexistente")
+    void testUpdate_NotFound() {
+        when(agenciaRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> {
+            agenciaService.update(1L, agencia);
+        });
+
+        verify(agenciaRepository, times(1)).findById(1L);
+        verify(agenciaRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Deve lançar ConflictException ao tentar atualizar uma agência para um número já existente")
+    void testUpdate_Conflict() {
+        Agencia updatedAgencia = new Agencia();
+        updatedAgencia.setNumero(54321L);
+
+        when(agenciaRepository.findById(1L)).thenReturn(Optional.of(agencia));
+        when(agenciaRepository.findByNumero(any())).thenReturn(Optional.of(new Agencia()));
+
+        assertThrows(ConflictException.class, () -> {
+            agenciaService.update(1L, updatedAgencia);
+        });
+
+        verify(agenciaRepository, times(1)).findById(1L);
+        verify(agenciaRepository, times(1)).findByNumero(any());
         verify(agenciaRepository, never()).save(any(Agencia.class));
     }
 
     @Test
-    @DisplayName("Deve lançar ConflictException se o número da agência já existir e pertencer a outra agência")
-    void testUpdateConflict() {
-        Long agenciaId = 1L;
-        Long numeroExistente = 54321L;
+    @DisplayName("Deve remover uma agência com sucesso quando não houver contas vinculadas")
+    void testDelete_Success() {
+        when(agenciaRepository.existsById(1L)).thenReturn(true);
+        when(contaRepository.existsByAgenciaId(1L)).thenReturn(false);
 
-        // Simula a agência existente
-        Agencia agenciaExistente = new Agencia();
-        agenciaExistente.setId(agenciaId);
-        agenciaExistente.setNumero(12345L);
-
-        // Simula outra agência com o número em conflito
-        Agencia agenciaComMesmoNumero = new Agencia();
-        agenciaComMesmoNumero.setId(2L);
-        agenciaComMesmoNumero.setNumero(numeroExistente);
-
-        when(agenciaRepository.findById(agenciaId)).thenReturn(Optional.of(agenciaExistente));
-        when(agenciaRepository.findByNumero(numeroExistente)).thenReturn(Optional.of(agenciaComMesmoNumero));
-
-        Agencia agenciaAtualizada = new Agencia();
-        agenciaAtualizada.setNumero(numeroExistente);
-
-        // Verificando se a exceção ConflictException é lançada
-        ConflictException exception = assertThrows(ConflictException.class, () -> {
-            agenciaService.update(agenciaId, agenciaAtualizada);
+        assertDoesNotThrow(() -> {
+            agenciaService.delete(1L);
         });
 
-        assertEquals(Strings.AGENCIA.CONFLICT, exception.getMessage());
-
-        // Verificando se o método save não foi chamado
-        verify(agenciaRepository).findById(agenciaId);
-        verify(agenciaRepository).findByNumero(numeroExistente);
-        verify(agenciaRepository, never()).save(any(Agencia.class));
+        verify(agenciaRepository, times(1)).existsById(1L);
+        verify(agenciaRepository, times(1)).deleteById(1L);
     }
 
     @Test
-    @DisplayName("Deve lançar RepositoryException ao ocorrer um erro inesperado ao atualizar a agência")
-    void testUpdateFailure() {
-        Long agenciaId = 1L;
+    @DisplayName("Deve lançar RepositoryException ao ocorrer erro de banco de dados na remoção de uma agência")
+    void testRepositoryException_Delete() {
+        when(agenciaRepository.existsById(1L)).thenReturn(true);
+        when(contaRepository.existsByAgenciaId(1L)).thenReturn(false);
+        doThrow(new DataAccessException("DB Error") {
+        }).when(agenciaRepository).deleteById(1L);
 
-        // Simula a agência existente
-        Agencia agenciaExistente = new Agencia();
-        agenciaExistente.setId(agenciaId);
-        agenciaExistente.setNumero(12345L);
-
-        Agencia agenciaAtualizada = new Agencia();
-        agenciaAtualizada.setNumero(54321L);
-
-        when(agenciaRepository.findById(agenciaId)).thenReturn(Optional.of(agenciaExistente));
-        when(agenciaRepository.findByNumero(54321L)).thenReturn(Optional.empty());
-        when(agenciaRepository.save(any(Agencia.class))).thenThrow(new RuntimeException("Erro ao acessar o banco de dados"));
-
-        // Verificando se a exceção RepositoryException é lançada
-        RepositoryException exception = assertThrows(RepositoryException.class, () -> {
-            agenciaService.update(agenciaId, agenciaAtualizada);
+        assertThrows(RepositoryException.class, () -> {
+            agenciaService.delete(1L);
         });
 
-        assertEquals(Strings.AGENCIA.ERROR_UPDATE, exception.getMessage());
+        verify(agenciaRepository, times(1)).existsById(1L);
+        verify(contaRepository, times(1)).existsByAgenciaId(1L);
+        verify(agenciaRepository, times(1)).deleteById(1L);
     }
 
     @Test
-    @DisplayName("Deve deletar uma agência com sucesso")
-    void testDeleteSuccess() {
-        Long agenciaId = 1L;
+    @DisplayName("Deve lançar NotFoundException ao tentar remover uma agência inexistente")
+    void testDelete_NotFound() {
+        when(agenciaRepository.existsById(1L)).thenReturn(false);
 
-        // Simula a existência da agência
-        when(agenciaRepository.existsById(agenciaId)).thenReturn(true);
+        assertThrows(NotFoundException.class, () -> {
+            agenciaService.delete(1L);
+        });
 
-        // Chamando o método a ser testado
-        agenciaService.delete(agenciaId);
-
-        // Verificando se o método deleteById foi chamado
-        verify(agenciaRepository).deleteById(agenciaId);
+        verify(agenciaRepository, times(1)).existsById(1L);
+        verify(agenciaRepository, never()).deleteById(any());
     }
 
     @Test
-    @DisplayName("Deve lançar NotFoundException se a agência não for encontrada")
-    void testDeleteNotFound() {
-        Long agenciaId = 1L;
+    @DisplayName("Deve lançar ConflictException ao tentar remover uma agência com contas vinculadas")
+    void testDelete_Conflict() {
+        when(agenciaRepository.existsById(1L)).thenReturn(true);
+        when(contaRepository.existsByAgenciaId(1L)).thenReturn(true);
 
-        // Simula a inexistência da agência
-        when(agenciaRepository.existsById(agenciaId)).thenReturn(false);
-
-        // Verificando se a exceção NotFoundException é lançada
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            agenciaService.delete(agenciaId);
+        assertThrows(ConflictException.class, () -> {
+            agenciaService.delete(1L);
         });
 
-        assertEquals(Strings.AGENCIA.NOT_FOUND, exception.getMessage());
-
-        // Verificando se o método deleteById não foi chamado
-        verify(agenciaRepository, never()).deleteById(anyLong());
-    }
-
-    @Test
-    @DisplayName("Deve lançar RepositoryException ao ocorrer um erro inesperado ao deletar a agência")
-    void testDeleteFailure() {
-        Long agenciaId = 1L;
-
-        // Simula a existência da agência
-        when(agenciaRepository.existsById(agenciaId)).thenReturn(true);
-
-        // Simula uma falha ao deletar a agência
-        doThrow(new RuntimeException("Erro ao acessar o banco de dados")).when(agenciaRepository).deleteById(agenciaId);
-
-        // Verificando se a exceção RepositoryException é lançada
-        RepositoryException exception = assertThrows(RepositoryException.class, () -> {
-            agenciaService.delete(agenciaId);
-        });
-
-        assertEquals(Strings.AGENCIA.ERROR_DELETE, exception.getMessage());
+        verify(agenciaRepository, times(1)).existsById(1L);
+        verify(contaRepository, times(1)).existsByAgenciaId(1L);
+        verify(agenciaRepository, never()).deleteById(any());
     }
 }

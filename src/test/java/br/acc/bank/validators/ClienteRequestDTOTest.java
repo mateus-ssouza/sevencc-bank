@@ -8,7 +8,6 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import br.acc.bank.dto.cliente.ClienteRequestDTO;
 import br.acc.bank.dto.endereco.EnderecoRequestDTO;
@@ -17,7 +16,6 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
-@SpringBootTest
 public class ClienteRequestDTOTest {
 
     private Validator validator;

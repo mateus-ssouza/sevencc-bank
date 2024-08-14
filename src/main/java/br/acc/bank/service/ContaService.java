@@ -167,6 +167,8 @@ public class ContaService {
             transacoes.sort(Comparator.comparing(Transacao::getDataTransacao).reversed());
 
             return transacoes;
+        } catch (NotFoundException e) {
+            throw e;
         } catch (Exception e) {
             throw new RepositoryException(Strings.CONTA.ERROR_EXTRACT, e);
         }

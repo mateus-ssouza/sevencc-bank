@@ -7,7 +7,6 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import br.acc.bank.dto.auth.AuthenticationDTO;
 import jakarta.validation.ConstraintViolation;
@@ -15,7 +14,6 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
-@SpringBootTest
 public class AuthenticationDTOTest {
 
     private Validator validator;
