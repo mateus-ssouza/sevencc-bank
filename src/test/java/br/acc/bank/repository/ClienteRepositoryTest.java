@@ -13,7 +13,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import br.acc.bank.model.Cliente;
 import br.acc.bank.model.Endereco;
-import br.acc.bank.model.enums.UsuarioRole;
 import jakarta.persistence.EntityManager;
 
 @DataJpaTest
@@ -29,7 +28,22 @@ public class ClienteRepositoryTest {
     @Test
     @DisplayName("Deve obter um cliente buscado por email com sucesso")
     void testFindByEmailSuccess() {
-        Cliente cliente = createClienteValid();
+        Endereco endereco = new Endereco();
+        endereco.setRua("Rua das Flores");
+        endereco.setNumero("123");
+        endereco.setBairro("Centro");
+        endereco.setCidade("São Paulo");
+        endereco.setEstado("SP");
+        endereco.setCep("12345678");
+        endereco.setPais("Brasil");
+
+        Cliente cliente = new Cliente();
+        cliente.setNome("João Silva");
+        cliente.setCpf("12345678900");
+        cliente.setDataNascimento(LocalDate.of(1990, 1, 1));
+        cliente.setEmail("joao.silva@example.com");
+        cliente.setTelefone("11987654321");
+        cliente.setEndereco(endereco);
 
         this.createCliente(cliente);
 
@@ -50,7 +64,22 @@ public class ClienteRepositoryTest {
     @Test
     @DisplayName("Deve obter um cliente buscado por CPF com sucesso")
     void testFindByCpfSuccess() {
-        Cliente cliente = createClienteValid();
+        Endereco endereco = new Endereco();
+        endereco.setRua("Rua das Flores");
+        endereco.setNumero("123");
+        endereco.setBairro("Centro");
+        endereco.setCidade("São Paulo");
+        endereco.setEstado("SP");
+        endereco.setCep("12345678");
+        endereco.setPais("Brasil");
+
+        Cliente cliente = new Cliente();
+        cliente.setNome("João Silva");
+        cliente.setCpf("12345678900");
+        cliente.setDataNascimento(LocalDate.of(1990, 1, 1));
+        cliente.setEmail("joao.silva@example.com");
+        cliente.setTelefone("11987654321");
+        cliente.setEndereco(endereco);
 
         this.createCliente(cliente);
 
@@ -68,53 +97,8 @@ public class ClienteRepositoryTest {
         assertFalse(result.isPresent());
     }
 
-    @Test
-    @DisplayName("Deve obter um cliente buscado por login com sucesso")
-    void testFindByLoginSuccess() {
-        Cliente cliente = createClienteValid();
-
-        this.createCliente(cliente);
-
-        Optional<Cliente> result = this.clienteRepository.findByLogin("joao");
-
-        assertTrue(result.isPresent());
-        assertEquals(cliente.getCpf(), result.get().getCpf());
-    }
-
-    @Test
-    @DisplayName("Não deve obter um cliente buscado por login com sucesso")
-    void testFindByLoginNotFound() {
-        Optional<Cliente> result = this.clienteRepository.findByLogin("test");
-
-        assertFalse(result.isPresent());
-    }
-
     private Cliente createCliente(Cliente cliente) {
         this.entityManager.persist(cliente);
-        return cliente;
-    }
-
-    private Cliente createClienteValid() {
-        Endereco endereco = new Endereco();
-        endereco.setRua("Rua das Flores");
-        endereco.setNumero("123");
-        endereco.setBairro("Centro");
-        endereco.setCidade("São Paulo");
-        endereco.setEstado("SP");
-        endereco.setCep("12345678");
-        endereco.setPais("Brasil");
-
-        Cliente cliente = new Cliente();
-        cliente.setNome("João Silva");
-        cliente.setCpf("12345678900");
-        cliente.setDataNascimento(LocalDate.of(1990, 1, 1));
-        cliente.setEmail("joao.silva@example.com");
-        cliente.setTelefone("11987654321");
-        cliente.setLogin("joao");
-        cliente.setPassword("joao123");
-        cliente.setRole(UsuarioRole.USUARIO);
-        cliente.setEndereco(endereco);
-
         return cliente;
     }
 }
