@@ -70,3 +70,5 @@ Onde o relatório dos testes ficará localizado no arquivo **index.html** na pas
 ![JaCoCo](https://img.shields.io/badge/JaCoCo-FF6347?style=for-the-badge&logo=java&logoColor=white)
 ![JUnit](https://img.shields.io/badge/JUnit-25A162?style=for-the-badge&logo=junit5&logoColor=white)
 ![Mockito](https://img.shields.io/badge/Mockito-FF9900?style=for-the-badge&logo=mockito&logoColor=white)
+![Kotlin](https://img.shields.io/badge/Kotlin-0095D5?style=for-the-badge&logo=kotlin&logoColor=white)
+
